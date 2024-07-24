@@ -14,6 +14,7 @@ export class MSTerminal {
 
   interp: Interpreter;
   terminal: Terminal;
+  abort: boolean = false;
 
   constructor(private fileSystem: MSFileSystem, terminalOptions?: TerminalOptions) {
     const outCallback = (txt: string) => {
@@ -55,6 +56,7 @@ export class MSTerminal {
       const srcCode = await this.fileSystem.getSource(mainFile);
       const coopRunner = this.interp.getCooperativeRunner(srcCode, mainFile);
       if (coopRunner) {
+        this.abort = false;
         this.runCycles(coopRunner, (err) => {
           if (err) reject(err); else resolve();
         });
@@ -66,6 +68,7 @@ export class MSTerminal {
     return new Promise<void>(async (resolve) => {
 	  const coopRunner = this.interp.getCooperativeRunner(srcCode, null);
 	  if (coopRunner) {
+        this.abort = false;
 		this.runCycles(coopRunner, (err) => {
 		  if (err) reject(err); else resolve();
 		});
@@ -77,7 +80,7 @@ export class MSTerminal {
   }
 
   private runCycles(coopRunner: CooperativeRunner, onFinished: (err?: Error) => void) {
-    if (!coopRunner.isFinished()) {
+    if (!coopRunner.isFinished() && !this.abort) {
       try {
         coopRunner.runSomeCycles();
         setTimeout(() => { this.runCycles(coopRunner, onFinished); }, 0);

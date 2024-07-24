@@ -28,9 +28,14 @@ export async function runCodeFromString(sourceCode: string, fileSystem?:FileSyst
   }
 }
 
+export function abortCodeRun() {
+	if (msTerm) msTerm.abort = true;
+}
+
 // Export functions to the global scope
 window.runCodeFromPath = runCodeFromPath;
 window.runCodeFromString = runCodeFromString;
+window.abortCodeRun = abortCodeRun;
 
 addEventListener("DOMContentLoaded", async (_: Event) => {
 
