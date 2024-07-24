@@ -1,6 +1,7 @@
 import { Runtime } from "miniscript-ts";
 import { Terminal } from "@xterm/xterm";
 import { Readline } from "xterm-readline";
+import { versionConfig } from "./version-config";
 
 export class BasicIO {
   
@@ -21,10 +22,10 @@ export class BasicIO {
     runtime.addIntrinsic('version',
     function(): any {
 		var result = runtime.newMap();
-		result.set("miniscript", "1.6.2");
-		result.set("buildDate", "1900-04-01");
-		result.set("hostName", "miniscript-tryit");
-		result.set("hostInfo", "https://github.com/JoeStrout/miniscript-tryit");
+		result.set("miniscript", versionConfig.miniscript);
+		result.set("buildDate", versionConfig.buildDate);
+		result.set("hostName", versionConfig.hostName);
+		result.set("hostInfo", versionConfig.hostInfo);
 		return result;
     });
   }
