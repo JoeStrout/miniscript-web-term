@@ -1,6 +1,7 @@
 
 import { MSTerminal, TerminalOptions } from "./msTerminal";
 import { HttpFileSystem } from "./fileSystems/httpFileSystem";
+import { MSFileSystem } from "./fileSystems/fileSystem";
 
 declare global {
   interface Window { terminalOptions: TerminalOptions | undefined; }
@@ -14,13 +15,20 @@ export async function runCodeFromPath(fileSystem, scriptFile) {
   await msTerm.runCodeFromPath(scriptFile);
 }
 
-export async function runCodeFromString(sourceCode: string, fileSystem?:FileSystem) {
+export async function runCodeFromString(sourceCode: string, fileSystem?: MSFileSystem) {
   if (!fileSystem) {
-    fileSystem = new HttpFileSystem('', '');
+    // Resolve modules (and /lib) relative to the page, not the site root.
+    const basePath = pageBasePath();
+    fileSystem = new HttpFileSystem(basePath, basePath);
   }
   if (!msTerm) msTerm = new MSTerminal(fileSystem, window.terminalOptions);
   window.xterm = msTerm.terminal;
   await msTerm.runCodeFromString(sourceCode);
+}
+
+// Path of the folder containing this page, e.g. "/miniscript-tryit".
+function pageBasePath(): string {
+  return new URL(document.baseURI).pathname.split("/").slice(0, -1).join("/");
 }
 
 export function abortCodeRun() {
@@ -44,7 +52,7 @@ addEventListener("DOMContentLoaded", async (_: Event) => {
   const terminalOptions = window.terminalOptions;
 
   const [scriptBasePath, srcFile] = HttpFileSystem.splitPathAndFileName(fileName);
-  const indexBasePath = new URL(document.baseURI).pathname.split("/").slice(0,-1).join("/");
+  const indexBasePath = pageBasePath();
   const fileSystem = new HttpFileSystem(indexBasePath, scriptBasePath);
   
   runCodeFromPath(fileSystem, srcFile);
