@@ -20,16 +20,11 @@ export async function runCodeFromString(sourceCode: string, fileSystem?:FileSyst
   }
   if (!msTerm) msTerm = new MSTerminal(fileSystem, window.terminalOptions);
   window.xterm = msTerm.terminal;
-  try {
-	  await msTerm.runCodeFromString(sourceCode);
-  } catch (err) {
-	  console.log("error caught");
-  	  msTerm.terminal.writeln("Error found");
-  }
+  await msTerm.runCodeFromString(sourceCode);
 }
 
 export function abortCodeRun() {
-	if (msTerm) msTerm.abort = true;
+	if (msTerm) msTerm.abort();
 }
 
 // Export functions to the global scope
